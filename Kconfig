@@ -1,0 +1,7 @@
+config ENABLE_FEATURE
+    bool "Enable my feature"
+    default y
+
+config MY_VALUE
+    int "Some value"
+    default 42

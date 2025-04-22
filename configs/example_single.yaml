@@ -1,0 +1,22 @@
+outpath: /nfs/home/xutongqiao/feature/feature_auto/modify_test/
+gem5_commit_id: 6204aeb
+task_name: singletest-fpregexp-v2-rob640-fpreg256
+task_category: single
+case_name: bwaves
+case_index: 37801
+spec: spec06
+# coverage: 0.1
+# type: float
+kmh_version: v2
+modify_functions:
+  - kmhv2fpreg
+  # - kmhv2intreg
+  - kmhv2rob
+  - lifetimedb
+modify_params:
+  kmhv2fpreg:
+    size: 256
+  # kmhv2intreg:
+  #   size: 224
+  kmhv2rob:
+    size: 640

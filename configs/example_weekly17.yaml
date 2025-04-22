@@ -1,0 +1,16 @@
+outpath: /nfs/home/xutongqiao/pull-requests/ready-to-gem5/configs/result_test/
+gem5_commit_id: c9bd2b3a38a1e776df6094bb9f5f6c7879b5e71c
+task_name: weekly
+task_category: spec
+spec: spec17
+coverage: 1
+type: all
+kmh_version: v3
+modify_functions:
+  # - kmhv3fpreg
+  # - kmhv3intreg
+modify_params:
+  # kmhv3fpreg:
+  #   size: 254
+  # kmhv3intreg:
+  #   size: 224

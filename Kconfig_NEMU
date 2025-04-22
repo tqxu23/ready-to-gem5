@@ -1,0 +1,466 @@
+mainmenu "NEMU Configuration Menu"
+
+choice
+  prompt "Base ISA"
+  default ISA_riscv32
+config ISA_x86
+  bool "x86"
+config ISA_mips32
+  bool "mips32"
+config ISA_riscv32
+  bool "riscv32"
+config ISA_riscv64
+  bool "riscv64"
+endchoice
+
+config ISA
+  string
+  default "x86" if ISA_x86
+  default "mips32" if ISA_mips32
+  default "riscv32" if ISA_riscv32
+  default "riscv64" if ISA_riscv64
+  default "none"
+
+config ILEN_MIN
+  int
+  default 1 if ISA_x86
+  default 4 if ISA_mips32
+  default 4 if ISA_riscv32
+  default 2 if ISA_riscv64
+  default 1
+
+config ISA64
+  depends on ISA_riscv64
+  bool
+  default y
+
+choice
+  prompt "NEMU execution engine"
+  default ENGINE_INTERPRETER
+
+config ENGINE_INTERPRETER
+  bool "Interpreter"
+  help
+    Interpreter guest instructions one by one.
+endchoice
+
+choice
+  prompt "NEMU profiling config"
+  default PROFILING_SIMPLIFIED_MODEL
+
+config PROFILING_SIMPLIFIED_MODEL
+  bool "Simplified model"
+  help
+    NEMU profiling output T:block_id:block_count, for cluster.
+
+config PROFILING_DETAIL_MODEL
+  bool "Detail model"
+  help
+    NEMU profiling output T:first_pc:second_pc:block_id:block_count, for parser simpoint_bbv file.
+endchoice
+
+config ENGINE
+  string
+  default "interpreter" if ENGINE_INTERPRETER
+  default "none"
+
+choice
+  prompt "Running mode"
+  default MODE_SYSTEM
+
+config MODE_SYSTEM
+  bool "System mode"
+  help
+    Support full-system functionality, including privileged instructions, MMU and devices.
+
+config MODE_USER
+  bool "User mode"
+  help
+    Only support non-privileged instructions. System calls are forwarded to NEMU or Linux host.
+endchoice
+
+menu "Build Options"
+choice
+  prompt "Compiler"
+  default CC_GCC
+config CC_GCC
+  bool "gcc"
+config CC_GPP
+  bool "g++"
+config CC_CLANG
+  bool "clang"
+endchoice
+
+config CC
+  string
+  default "gcc" if CC_GCC
+  default "g++" if CC_GPP
+  default "clang" if CC_CLANG
+  default "none"
+
+choice
+  prompt "Optimization Level"
+  default CC_O2
+config CC_O0
+  bool "O0"
+config CC_O1
+  bool "O1"
+config CC_O2
+  bool "O2"
+config CC_O3
+  bool "O3"
+endchoice
+
+config CC_OPT
+  string
+  default "-O0" if CC_O0
+  default "-O1" if CC_O1
+  default "-O2" if CC_O2
+  default "-O3" if CC_O3
+  default "none"
+
+config CC_NATIVE_ARCH
+  bool "Enable march=native"
+  default n
+
+config CC_LTO
+  bool "Enable link-time optimization"
+  default y
+
+config CC_DEBUG
+  bool "Enable debug information"
+  default n
+
+config CC_ASAN
+  depends on !MODE_USER
+  bool "Enable address sanitizer"
+  default n
+endmenu
+
+menu "Testing and Debugging"
+config DEBUG
+  bool "Enable debug features: instruction tracing and watchpoint"
+  default n
+  help
+    Enable debug features, which include instruction tracing and watchpoint.
+    Add -l <logfile path> to enable instruction tracing and log dump.
+
+config SIMPLE_LOG
+  bool "Make log output simpler"
+  default n
+  help
+    Make the log output simpler, without color, file path and line number.
+
+config SHARE_OUTPUT_LOG_TO_FILE
+  bool "Output log to file"
+  depends on SHARE
+  default n
+  help
+    If y, NEMU will output log to files named "nemu-hart-*.log".
+
+    Note: This option is only effective in SHARE mode. For standalone mode, 
+    use the corresponding command option.
+
+config DIFFTEST
+  depends on !SHARE
+  bool "Enable differential testing"
+  default n
+  help
+    Enable differential testing with a reference design.
+    Note that this will significantly reduce the performance of NEMU.
+
+choice
+  prompt "Reference design"
+  default DIFFTEST_REF_QEMU_DL
+  depends on DIFFTEST
+config DIFFTEST_REF_QEMU_DL
+  bool "QEMU, communicate with dynamic linking"
+config DIFFTEST_REF_QEMU_SOCKET
+  bool "QEMU, communicate with socket"
+config DIFFTEST_REF_KVM
+  bool "KVM"
+config DIFFTEST_REF_NEMU
+  bool "NEMU"
+config DIFFTEST_REF_SPIKE
+  bool "SPIKE"
+endchoice
+
+config DIFFTEST_STORE_COMMIT
+  depends on DIFFTEST_REF_SPIKE
+  bool "Check the data of the store class instruction"
+  default n
+
+
+config DIFFTEST_REF_QEMU
+  depends on DIFFTEST_REF_QEMU_DL || DIFFTEST_REF_QEMU_SOCKET
+  bool
+  default y
+
+config DIFFTEST_REF_PATH
+  string
+  default "tools/qemu-dl-diff" if DIFFTEST_REF_QEMU_DL
+  default "tools/qemu-socket-diff" if DIFFTEST_REF_QEMU_SOCKET
+  default "tools/kvm-diff" if DIFFTEST_REF_KVM
+  default "." if DIFFTEST_REF_NEMU
+  default "none"
+
+config DIFFTEST_REF_NAME
+  string
+  default "qemu" if DIFFTEST_REF_QEMU_DL
+  default "qemu" if DIFFTEST_REF_QEMU_SOCKET
+  default "kvm" if DIFFTEST_REF_KVM
+  default "nemu-interpreter" if DIFFTEST_REF_NEMU
+  default "none"
+
+config IQUEUE
+  bool "Record the last instrucitons executed"
+  default n
+
+config MEMLOG
+  bool "Enable Log for memory"
+  default n
+
+config TRANSLOG
+  bool "Enable Log for address translation"
+  default n
+
+config EXITLOG
+  bool "Enable Log for exiting reasons"
+  default n
+
+config TRACE_INST
+  bool "Enable Log for tracing instructions"
+  default n
+
+config TRACE_INST_DASM
+  depends on DEBUG
+  bool "Enable rich Log for tracing instructions, pc, inst and dasm included"
+  default n
+
+config TRACE_BB
+  bool "Enable Log for tracing basic block"
+  default n
+
+config SIMPOINT_LOG
+  bool "Enable Log for simpoint profiling"
+  default n
+
+config BR_LOG
+  bool "Enable branch log"
+  default n
+  help
+    Branch Log (br_log) is mainly used for lightssss (LightQS) to run ahead of
+    DUT. But it could also used for debugging.
+
+config BR_LOG_SIZE
+  int "The size of branch log"
+  depends on BR_LOG
+  default 50000000
+  help
+    When br_log is overflow, it will overwrite from beginning.
+
+config BR_LOG_OUTPUT
+  bool "Enable branch log output"
+  default n
+  help
+    Enable br_log output when NEMU exits. As a reference, You could use
+    br_log_dump() to dump br_log whenever you want.
+
+config REPORT_ILLEGAL_INSTR
+  bool "Let NEMU report illegal instruction"
+  default n
+
+endmenu
+
+
+choice
+  prompt "FPU Emulation"
+  default FPU_SOFT
+config FPU_HOST
+  bool "Use host floating point operation"
+config FPU_SOFT
+  bool "Use softfloat library"
+config FPU_NONE
+  bool "Disable FPU Emulation"
+endchoice
+
+choice
+  prompt "Detecting misaligned memory accessing"
+  default AC_SOFT
+config AC_HOST
+  bool "By host CPU (x86 host only)"
+config AC_SOFT
+  bool "By software emulation"
+config AC_NONE
+  bool "Disable"
+endchoice
+
+config VECTOR_AC_SOFT
+  bool "Detecting misaligned vector memory accessing"
+  default y
+
+config MMIO_AC_SOFT
+  bool "Detecting misaligned mmio memory accessing"
+  default y
+
+config AMO_AC_SOFT
+  bool "Detecting misaligned amo memory accessing"
+  default y
+
+menu "Processor difftest reference config"
+config SHARE
+  bool "Build shared library as processor difftest reference"
+  default n
+
+config DIFFTEST_STORE_COMMIT
+  depends on SHARE
+  bool "Maintain a committed store queue for processor ref"
+  default y
+
+config DIFFTEST_REF_FOR_GEM5
+  depends on SHARE
+  bool "Always copy lrsc valid to lr valid for GEM5"
+  default n
+
+config DIFFTEST_STORE_COMMIT_AMO
+  depends on DIFFTEST_STORE_COMMIT
+  bool "Also record store requests by AMO instructions"
+  default n
+
+config DIFFTEST_STORE_QUEUE_SIZE
+  depends on DIFFTEST_STORE_COMMIT
+  int "Size of committed store queue"
+  default 64
+
+config GUIDED_EXEC
+  depends on SHARE
+  bool "Enable DUT guided execution"
+  default y
+
+config GUIDED_TVAL
+  bool "When page fault is present, use DUT's tval"
+  depends on GUIDED_EXEC
+  default n
+  help
+    This will use the dut's tval as the tval when triggering page fault, but be careful, this may synchronize the wrong data.
+    This is mainly for vector access, which causes NEMU to trigger pf when vector access actually triggers an pf.
+    If this option is not enabled, NEMU fires the vector pf on the first element.
+
+config QUERY_REF
+  depends on SHARE
+  bool "Enable event query support when used as difftest ref"
+  default y
+
+config LARGE_COPY
+  depends on SHARE && !MEM_RANDOM
+  bool "Enable difftest large memory copy optimization"
+  default n
+
+config PANIC_ON_UNIMP_CSR
+  depends on SHARE
+  bool "Panic if an unimplemented CSR is being accessed"
+  default n
+
+config REF_STATUS
+  depends on SHARE
+  bool "Enable ref status API"
+  default n
+
+endmenu
+
+menu "Miscellaneous"
+choice
+  prompt "Host timer"
+  default TIMER_GETTIMEOFDAY
+config TIMER_GETTIMEOFDAY
+  bool "gettimeofday"
+config TIMER_CLOCK_GETTIME
+  bool "clock_gettime"
+endchoice
+
+config DETERMINISTIC
+  bool "Make the behavior of NEMU deterministic"
+  default y
+  help
+    If enabled, NEMU's execution will be fully deterministic, ensuring that
+    running same workload multiple times produces identical instruction trace
+    and results.
+
+    If enabled, the update of timer and devices will no longer depend on host
+    alarm. Also, the value of timer (RTC) will depend on instruction counting,
+    rather than host real time.
+
+config DISABLE_HOST_ALARM
+  bool
+  default y if SHARE || DETERMINISTIC
+  default n
+
+config MEMORY_REGION_ANALYSIS
+  bool "Enable Program memory segment analysis"
+  default n
+
+if MEMORY_REGION_ANALYSIS
+config MEMORY_REGION_ANALYSIS_SIZE
+  int "Analysis block MB size"
+  default 32
+endif
+
+config RT_CHECK
+  bool "Enable runtime checking"
+  default y
+
+config PERF_OPT
+  depends on !SHARE
+  bool "Performance optimization"
+  default y
+
+if PERF_OPT
+config TCACHE_SIZE
+  int "Number of entries in trace cache"
+  default 8192
+
+config BB_LIST_SIZE
+  int "Number of entries in basic block metadata list"
+  default 1024
+
+config BB_POOL_SIZE
+  int "Number of entries in basic block metadata pool"
+  default 1024
+
+endif
+
+choice
+  prompt "Instruction counting accuracy"
+  default INSTR_CNT_BY_BB if PERF_OPT
+  default INSTR_CNT_BY_INSTR_NORMAL if !PERF_OPT
+
+config INSTR_CNT_DISABLED
+  bool "Disabled"
+  depends on !DEBUG && !SHARE
+
+config INSTR_CNT_BY_BB
+  bool "By Basic Block (BB)"
+  depends on PERF_OPT
+
+config INSTR_CNT_BY_INSTR_PERF_OPT
+  bool "By Instruction"
+  depends on PERF_OPT
+  select INSTR_CNT_BY_INSTR
+
+config INSTR_CNT_BY_INSTR_NORMAL
+  bool "By Instruction"
+  depends on !PERF_OPT
+  select INSTR_CNT_BY_INSTR
+
+endchoice
+
+config INSTR_CNT_BY_INSTR
+  bool
+  default n
+
+config ENABLE_INSTR_CNT
+  bool
+  default y if INSTR_CNT_BY_INSTR || INSTR_CNT_BY_BB
+  default n
+
+endmenu
