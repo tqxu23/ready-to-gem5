@@ -1,5 +1,5 @@
 .vscode
-vector_result/*
+result
 __pycache__/
 
 

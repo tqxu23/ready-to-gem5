@@ -1,4 +1,4 @@
-outpath: /nfs/home/xutongqiao/pull-requests/ready-to-gem5/configs/result_test/
+outpath: /nfs/home/xutongqiao/pull-requests/ready-to-gem5/result
 gem5_commit_id: c9bd2b3a38a1e776df6094bb9f5f6c7879b5e71c
 task_name: weekly
 task_category: spec

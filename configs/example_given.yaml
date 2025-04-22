@@ -1,4 +1,4 @@
-outpath: /nfs/home/xutongqiao/pull-requests/ready-to-gem5/configs/result_test
+outpath: /nfs/home/xutongqiao/pull-requests/ready-to-gem5/result
 gem5_commit_id: 6204aeb
 task_name: given-test
 commit: 测试给定程序运行的情况

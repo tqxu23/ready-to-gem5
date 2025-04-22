@@ -1,4 +1,4 @@
-outpath: /nfs/home/xutongqiao/pull-requests/ready-to-gem5/configs/result_test/
+outpath: /nfs/home/xutongqiao/pull-requests/ready-to-gem5/result
 gem5_commit_id: 6d5f63ce8d6e95a3bd6f18633c8f7de22ad605a0
 task_name: weekly
 is_continue: true

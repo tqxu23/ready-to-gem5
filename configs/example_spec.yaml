@@ -1,4 +1,4 @@
-outpath: /nfs/home/xutongqiao/feature/feature_auto/modify_test/
+outpath: /nfs/home/xutongqiao/pull-requests/ready-to-gem5/result
 gem5_commit_id: 6204aeb
 task_name: test
 task_category: spec
