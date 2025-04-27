@@ -7,7 +7,7 @@ source ~/.bashrc
 export PATH=/nfs/home/yanyue/tools/parallel/parallel-20240722/src:$PATH
 
 export GCBV_REF_SO=$4
-export GCB_RESTORER=$5
+export GCB_RESTORER=""
 res_path=$1
 work_path=$2
 json_path=$3

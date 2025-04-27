@@ -1,3 +1,0 @@
-[submodule "gem5_data_proc"]
-	path = gem5_data_proc
-	url = https://github.com/shinezyy/gem5_data_proc
