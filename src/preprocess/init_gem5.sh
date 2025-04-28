@@ -11,6 +11,7 @@ export GCB_RESTORER=$3
 work_src=$1
 cd $work_src
 cd GEM5
+git diff > git.diff
 bash ./init.sh
 scons build/RISCV/gem5.opt --gold-linker -j128 --ignore-style
 export gem5_home=`pwd`
